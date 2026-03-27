@@ -14,11 +14,13 @@
 
 MqttManager mqtt(MQTT_SERVER, MQTT_PORT, MQTT_BASE_TOPIC); 
 GSRSensor gsrSensor(34);
-Max30102Sensor max30102Sensor;
+Max30102RedSensor redSensor;
+Max30102IrSensor irSensor;
 
 Sensor* sensors[] = {
-  &gsrSensor, 
-  &max30102Sensor
+  &gsrSensor,
+  &redSensor,
+  &irSensor
 };
 const int numSensors = sizeof(sensors) / sizeof(sensors[0]);
 
@@ -58,18 +60,18 @@ void loop() {
     sensors[i]->update();
   }
 
-  if (millis() - lastMsgTime > 10) {
-    lastMsgTime = millis();
-
-    if (mqtt.isConnected()) {
-      for (int i = 0; i < numSensors; i++) {
+  if (mqtt.isConnected()) {
+    for (int i = 0; i < numSensors; i++) {
+      
+      if (sensors[i]->shouldPublish()) {
         String topic = String(MQTT_BASE_TOPIC) + "/sensor/" + sensors[i]->getType();
         Serial.printf("Publishing to topic: %s\n", topic.c_str());
         String payload = sensors[i]->getData();
-        
+
         Serial.printf("Sending to %s: %s\n", topic.c_str(), payload.c_str());
         mqtt.publish(topic.c_str(), payload.c_str());
       }
+      
     }
   }
 }
