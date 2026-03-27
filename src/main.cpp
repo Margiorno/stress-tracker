@@ -9,13 +9,16 @@
 
 // Class for handling sensors
 #include "GsrSensor.h"
+#include "Max30102Sensor.h"
 
 
 MqttManager mqtt(MQTT_SERVER, MQTT_PORT, MQTT_BASE_TOPIC); 
 GSRSensor gsrSensor(34);
+Max30102Sensor max30102Sensor;
 
 Sensor* sensors[] = {
-  &gsrSensor
+  &gsrSensor, 
+  &max30102Sensor
 };
 const int numSensors = sizeof(sensors) / sizeof(sensors[0]);
 
