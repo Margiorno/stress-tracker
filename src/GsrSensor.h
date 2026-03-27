@@ -54,7 +54,6 @@ public:
         // As documentation suggests, we should average multiple readings to get a stable value.
         for(int i = 0; i < 10; i++) {
             sum += readAnalog10Bit();
-            delay(5);
         }
         
         _gsrAverage = sum / 10;
@@ -67,6 +66,10 @@ public:
 
     const char* getType() override {
         return "GSR";
+    }
+
+    unsigned long getPublishInterval() override {
+        return 150;
     }
 };
 
