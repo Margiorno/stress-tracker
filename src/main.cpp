@@ -34,6 +34,8 @@ void setup() {
   }
   Serial.println("\nConnected to WiFi!");
 
+  mqtt.begin();
+
   Serial.println("Initializing sensors...");
   for (int i = 0; i < numSensors; i++) {
     sensors[i]->begin();
@@ -53,7 +55,7 @@ void loop() {
     sensors[i]->update();
   }
 
-  if (millis() - lastMsgTime > 5000) {
+  if (millis() - lastMsgTime > 10) {
     lastMsgTime = millis();
 
     if (mqtt.isConnected()) {
