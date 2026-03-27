@@ -4,6 +4,9 @@
 #include <Arduino.h>
 
 class Sensor {
+protected:
+    unsigned long _lastSendTime = 0;
+    
 public:
     virtual ~Sensor() {}
     
@@ -17,6 +20,17 @@ public:
     
     // Name of the sensor used in MQTT message topics
     virtual const char* getType() = 0;
+
+    // Optional: Define how often this sensor should publish data (in milliseconds)
+    virtual unsigned long getPublishInterval() = 0;
+
+    bool shouldPublish() {
+        if (millis() - _lastSendTime >= getPublishInterval()) {
+            _lastSendTime = millis();
+            return true;
+        }
+        return false;
+    }
 };
 
 #endif
