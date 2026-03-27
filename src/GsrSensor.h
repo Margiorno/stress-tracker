@@ -36,7 +36,7 @@ public:
 
     // Calibration method to establish a baseline reference value (Serial_calibration) when the sensor is not worn.
     void calibrate() {
-        Serial.println("GSR: Rozpoczynam kalibracje. Upewnij sie, ze czujnik NIE JEST zalozony...");
+        Serial.println("GSR: Calibration starting...");
         long sum = 0;
         
         for(int i = 0; i < 20; i++) {
@@ -45,7 +45,7 @@ public:
         }
         
         _serialCalibration = sum / 20;
-        Serial.printf("GSR: Kalibracja zakonczona. Wartosc referencyjna (Serial_calibration): %d\n", _serialCalibration);
+        Serial.printf("GSR: Calibration finished (Serial_calibration): %d\n", _serialCalibration);
     }
 
     void update() override {

@@ -7,14 +7,24 @@
 // Class for managing MQTT connection and publishing
 #include "MqttManager.h"
 
+// Class for handling sensors
+#include "GsrSensor.h"
+
+
 MqttManager mqtt(MQTT_SERVER, MQTT_PORT, MQTT_BASE_TOPIC); 
+GSRSensor gsrSensor(34);
+
+Sensor* sensors[] = {
+  &gsrSensor
+};
+const int numSensors = sizeof(sensors) / sizeof(sensors[0]);
 
 unsigned long lastMsgTime = 0;
 
 void setup() {
   Serial.begin(115200);
   delay(1000);
-  Serial.println("Starting MQTT test program...");
+  // Serial.println("Starting MQTT test program...");
 
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.print("Connecting to WiFi");
@@ -24,19 +34,37 @@ void setup() {
   }
   Serial.println("\nConnected to WiFi!");
 
-  mqtt.begin();
+  Serial.println("Initializing sensors...");
+  for (int i = 0; i < numSensors; i++) {
+    sensors[i]->begin();
+  }
+
+  Serial.println("Calibrating GSR sensor...");
+  gsrSensor.calibrate();
+
+
+
 }
 
 void loop() {
   mqtt.loop();
 
+  for (int i = 0; i < numSensors; i++) {
+    sensors[i]->update();
+  }
+
   if (millis() - lastMsgTime > 5000) {
     lastMsgTime = millis();
 
     if (mqtt.isConnected()) {
-      Serial.println("Sending test message: cosik");
-
-      mqtt.publish("mrar/test", "cosik");
+      for (int i = 0; i < numSensors; i++) {
+        String topic = String(MQTT_BASE_TOPIC) + "/sensor/" + sensors[i]->getType();
+        Serial.printf("Publishing to topic: %s\n", topic.c_str());
+        String payload = sensors[i]->getData();
+        
+        Serial.printf("Sending to %s: %s\n", topic.c_str(), payload.c_str());
+        mqtt.publish(topic.c_str(), payload.c_str());
+      }
     }
   }
 }
