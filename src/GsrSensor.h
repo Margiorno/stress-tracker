@@ -68,6 +68,10 @@ public:
     const char* getType() override {
         return "GSR";
     }
+
+    unsigned long getPublishInterval() override {
+        return 10;
+    }
 };
 
 #endif

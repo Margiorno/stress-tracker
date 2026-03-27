@@ -1,53 +1,68 @@
-#ifndef MAX30102_RAW_SENSOR_H
-#define MAX30102_RAW_SENSOR_H
+#ifndef MAX30102_SENSORS_H
+#define MAX30102_SENSORS_H
 
 #include "Sensor.h"
 #include "DFRobot_MAX30102.h"
 
-class Max30102RawSensor : public Sensor {
+// Współdzielony obiekt fizycznego czujnika
+static DFRobot_MAX30102 particleSensor;
+static bool isMax30102Initialized = false;
+
+// ------------------------------------------
+// KLASA 1: Czujnik fali czerwonej (RED)
+// ------------------------------------------
+class Max30102RedSensor : public Sensor {
 private:
-    DFRobot_MAX30102 particleSensor;
     uint32_t _redValue;
-    uint32_t _irValue;
 
 public:
-    Max30102RawSensor() : _redValue(0), _irValue(0) {}
+    Max30102RedSensor() : _redValue(0) {}
 
     bool begin() override {
-        if (!particleSensor.begin()) {
-            Serial.println("MAX30102: Nie znaleziono czujnika!");
-            return false;
+        if (!isMax30102Initialized) {
+            if (!particleSensor.begin()) return false;
+            // Konfiguracja pod szybkie wykresy (odczyt surowy)
+            particleSensor.sensorConfiguration(60, SAMPLEAVG_8, MODE_MULTILED, SAMPLERATE_400, PULSEWIDTH_411, ADCRANGE_16384);
+            isMax30102Initialized = true;
         }
-
-        particleSensor.sensorConfiguration(
-            60,               // ledBrightness
-            SAMPLEAVG_8,      // sampleAverage
-            MODE_MULTILED,    // ledMode (Red i IR same time)
-            SAMPLERATE_400,   // sampleRate
-            PULSEWIDTH_411,   // pulseWidth
-            ADCRANGE_16384    // adcRange (wide range for better resolution)
-        );
-        
-        Serial.println("MAX30102: Initialized in RAW mode.");
         return true;
     }
 
-    void update() override {
-        _irValue = particleSensor.getIR();
-        _redValue = particleSensor.getRed();
+    void update() override { _redValue = particleSensor.getRed(); }
+    
+    String getData() override { return String(_redValue); } // Czysty, prosty payload!
+    
+    const char* getType() override { return "MAX30102_RED"; }
+    
+    unsigned long getPublishInterval() override { return 100; } // Wysyłka co 100 ms (10 razy na sek.)
+};
+
+// ------------------------------------------
+// KLASA 2: Czujnik fali podczerwonej (IR)
+// ------------------------------------------
+class Max30102IrSensor : public Sensor {
+private:
+    uint32_t _irValue;
+
+public:
+    Max30102IrSensor() : _irValue(0) {}
+
+    bool begin() override {
+        if (!isMax30102Initialized) {
+            if (!particleSensor.begin()) return false;
+            particleSensor.sensorConfiguration(60, SAMPLEAVG_8, MODE_MULTILED, SAMPLERATE_400, PULSEWIDTH_411, ADCRANGE_16384);
+            isMax30102Initialized = true;
+        }
+        return true;
     }
 
-    String getData() override {
-        String payload = "{";
-        payload += "\"red\":" + String(_redValue) + ",";
-        payload += "\"ir\":" + String(_irValue);
-        payload += "}";
-        return payload;
-    }
-
-    const char* getType() override {
-        return "MAX30102_RAW";
-    }
+    void update() override { _irValue = particleSensor.getIR(); }
+    
+    String getData() override { return String(_irValue); } // Czysty, prosty payload!
+    
+    const char* getType() override { return "MAX30102_IR"; }
+    
+    unsigned long getPublishInterval() override { return 100; } // Wysyłka co 100 ms
 };
 
 #endif
