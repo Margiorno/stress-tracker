@@ -31,6 +31,7 @@ unsigned long lastMsgTime = 0;
 
 void setup() {
   Serial.begin(115200);
+  Wire.begin();
   delay(1000);
   // Serial.println("Starting MQTT test program...");
 
