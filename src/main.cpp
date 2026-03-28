@@ -10,17 +10,20 @@
 // Class for handling sensors
 #include "GsrSensor.h"
 #include "Max30102Sensor.h"
+#include "Mpu6050Sensor.h"
 
 
 MqttManager mqtt(MQTT_SERVER, MQTT_PORT, MQTT_BASE_TOPIC); 
 GSRSensor gsrSensor(34);
 Max30102RedSensor redSensor;
 Max30102IrSensor irSensor;
+Mpu6050Sensor mpuSensor;
 
 Sensor* sensors[] = {
   &gsrSensor,
   &redSensor,
-  &irSensor
+  &irSensor,
+  &mpuSensor
 };
 const int numSensors = sizeof(sensors) / sizeof(sensors[0]);
 
@@ -65,10 +68,10 @@ void loop() {
       
       if (sensors[i]->shouldPublish()) {
         String topic = String(MQTT_BASE_TOPIC) + "/sensor/" + sensors[i]->getType();
-        Serial.printf("Publishing to topic: %s\n", topic.c_str());
+        // Serial.printf("Publishing to topic: %s\n", topic.c_str());
         String payload = sensors[i]->getData();
 
-        Serial.printf("Sending to %s: %s\n", topic.c_str(), payload.c_str());
+        // Serial.printf("Sending to %s: %s\n", topic.c_str(), payload.c_str());
         mqtt.publish(topic.c_str(), payload.c_str());
       }
       
