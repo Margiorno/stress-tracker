@@ -15,15 +15,15 @@ public:
 
     bool begin() override {
         Wire.beginTransmission(MPU_ADDR);
-        Wire.write(0x6B); // PWR_MGMT_1 register
-        Wire.write(0x80); // Hard reset
+        Wire.write(0x6B);
+        Wire.write(0x80);
         Wire.endTransmission();
         
         delay(100);
 
         Wire.beginTransmission(MPU_ADDR);
         Wire.write(0x6B); 
-        Wire.write(0x00); // Wake up
+        Wire.write(0x00);
         if (Wire.endTransmission() != 0) {
             Serial.println("MPU6050: Init failed!");
             _isInitialized = false;
@@ -31,8 +31,8 @@ public:
         }
 
         Wire.beginTransmission(MPU_ADDR);
-        Wire.write(0x1C); // ACCEL_CONFIG
-        Wire.write(0x00); // +/- 2g
+        Wire.write(0x1C);
+        Wire.write(0x00);
         Wire.endTransmission();
 
         Serial.println("MPU6050: Initialized successfully.");
@@ -44,11 +44,9 @@ public:
         if (!_isInitialized) return;
 
         Wire.beginTransmission(MPU_ADDR);
-        Wire.write(0x3B); // ACCEL_XOUT_H
-        
-        // Check if the sensor is still responding
+        Wire.write(0x3B);
+
         if (Wire.endTransmission(false) != 0) {
-            // Sensor didn't ACK, skip this reading to prevent crash
             Serial.println("MPU6050: I2C error during update!");
             return; 
         }
