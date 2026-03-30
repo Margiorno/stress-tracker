@@ -30,8 +30,44 @@ const int numSensors = sizeof(sensors) / sizeof(sensors[0]);
 
 unsigned long lastMsgTime = 0;
 
+void clearI2CBus(int sda, int scl) {
+  pinMode(sda, INPUT_PULLUP);
+  pinMode(scl, INPUT_PULLUP);
+  delay(10);
+
+  if (digitalRead(sda) == LOW) {
+    Serial.println("I2C Bus locked! Clearing...");
+    pinMode(scl, OUTPUT);
+    
+    for (int i = 0; i < 9; i++) {
+      digitalWrite(scl, LOW);
+      delayMicroseconds(20);
+      digitalWrite(scl, HIGH);
+      delayMicroseconds(20);
+      if (digitalRead(sda) == HIGH) {
+      }
+    }
+  }
+
+  pinMode(sda, OUTPUT);
+  pinMode(scl, OUTPUT);
+  digitalWrite(sda, LOW);
+  delayMicroseconds(20);
+  digitalWrite(scl, HIGH);
+  delayMicroseconds(20);
+  digitalWrite(sda, HIGH);
+  delayMicroseconds(20);
+
+  pinMode(sda, INPUT);
+  pinMode(scl, INPUT);
+}
+
 void setup() {
   Serial.begin(115200);
+  delay(1000);
+  clearI2CBus(21, 22);
+
+
   Wire.begin();
   Wire.setClock(100000);
   delay(1000);
@@ -49,13 +85,21 @@ void setup() {
 
   Serial.println("Initializing sensors...");
   for (int i = 0; i < numSensors; i++) {
-    for (int i = 0; i < numSensors; i++) {
-    while (!sensors[i]->begin()) {
+    int retries = 0;
+    while (!sensors[i]->begin()) {        
       Serial.printf("Error: Could not find sensor %s. Retrying in 1s...\n", sensors[i]->getType());
       delay(1000);
+
+      
+      retries++;
+      if (retries % 3 == 0) {
+          Serial.println("Resetting I2C bus...");
+          Wire.end();
+          delay(100);
+          Wire.begin();
+      }
     }
     Serial.printf("Sensor %s initialized [OK]\n", sensors[i]->getType());
-  }
   }
 
   Serial.println("Calibrating GSR sensor...");
