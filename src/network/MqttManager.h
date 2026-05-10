@@ -2,12 +2,12 @@
 #define MQTT_MANAGER_H
 
 #include <Arduino.h>
-#include <WiFi.h>
+#include <WiFiClientSecure.h>
 #include <PubSubClient.h>
 
 class MqttManager {
 private:
-    WiFiClient espClient;
+    WiFiClientSecure espClient;
     PubSubClient client;
     
     const char* mqtt_server;
@@ -19,9 +19,10 @@ private:
 public:
     MqttManager(const char* server, int port, const char* topic);
     
-    void begin();
+    void begin(const char* rootCA, const char* deviceCert, const char* deviceKey);
     void loop();
     bool publish(const char* topic, const char* payload);
+    bool publishBinary(const char* topic, const uint8_t* payload, unsigned int length);
     bool isConnected();
 };
 

@@ -1,0 +1,117 @@
+// #ifndef MPU6050_SENSOR_H
+// #define MPU6050_SENSOR_H
+
+// #include "Sensor.h"
+// #include <Wire.h>
+
+// class Mpu6050Sensor : public Sensor {
+// private:
+//     float _ax, _ay, _az;
+//     bool _isInitialized;
+//     const uint8_t MPU_ADDR = 0x68;
+
+// public:
+//     Mpu6050Sensor() : _ax(0), _ay(0), _az(0), _isInitialized(false) {}
+
+//     bool begin() override {
+//         Wire.beginTransmission(MPU_ADDR);
+//         Wire.write(0x6B);
+//         Wire.write(0x80);
+//         Wire.endTransmission();
+        
+//         delay(100);
+
+//         Wire.beginTransmission(MPU_ADDR);
+//         Wire.write(0x6B); 
+//         Wire.write(0x00);
+//         if (Wire.endTransmission() != 0) {
+//             Serial.println("MPU6050: Init failed!");
+//             _isInitialized = false;
+//             return false;
+//         }
+
+//         Wire.beginTransmission(MPU_ADDR);
+//         Wire.write(0x1C);
+//         Wire.write(0x00);
+//         Wire.endTransmission();
+
+//         Serial.println("MPU6050: Initialized successfully.");
+//         _isInitialized = true;
+//         return true;
+//     }
+
+//     // void update() override {
+//     //     if (!_isInitialized) return;
+
+//     //     Wire.beginTransmission(MPU_ADDR);
+//     //     Wire.write(0x3B);
+
+//     //     if (Wire.endTransmission(false) != 0) {
+//     //         Serial.println("MPU6050: I2C error during update!");
+//     //         return; 
+//     //     }
+        
+//     //     Wire.requestFrom((int)MPU_ADDR, 6, (int)true); 
+
+//     //     if (Wire.available() == 6) {
+//     //         int16_t accelX = (Wire.read() << 8 | Wire.read()); 
+//     //         int16_t accelY = (Wire.read() << 8 | Wire.read()); 
+//     //         int16_t accelZ = (Wire.read() << 8 | Wire.read()); 
+
+//     //         _ax = (accelX / 16384.0) * 9.81;
+//     //         _ay = (accelY / 16384.0) * 9.81;
+//     //         _az = (accelZ / 16384.0) * 9.81;
+//     //     }
+//     // }
+
+//     void update() override {
+//         if (!_isInitialized) return;
+
+//         Wire.beginTransmission(MPU_ADDR);
+//         Wire.write(0x3B);
+
+//         if (Wire.endTransmission() != 0) {
+//             Serial.println("MPU6050: Error I2C - cannot save register!");
+//             return; 
+//         }
+        
+//         uint8_t bytesReceived = Wire.requestFrom((uint8_t)MPU_ADDR, (uint8_t)6); 
+
+//         if (bytesReceived == 6) {
+//             int16_t accelX = (Wire.read() << 8 | Wire.read()); 
+//             int16_t accelY = (Wire.read() << 8 | Wire.read()); 
+//             int16_t accelZ = (Wire.read() << 8 | Wire.read()); 
+
+//             _ax = (accelX / 16384.0) * 9.81;
+//             _ay = (accelY / 16384.0) * 9.81;
+//             _az = (accelZ / 16384.0) * 9.81;
+//         } else {
+//             while (Wire.available()) {
+//                 Wire.read();
+//             }
+//         }
+//     }
+
+//     String getData() override {
+//         String payload = "{";
+//         payload += "\"x\":" + String(_ax, 2) + ",";
+//         payload += "\"y\":" + String(_ay, 2) + ",";
+//         payload += "\"z\":" + String(_az, 2);
+//         payload += "}";
+//         return payload;
+//     }
+
+//     const char* getType() override {
+//         return "MPU6050";
+//     }
+
+//     unsigned long getPublishInterval() override {
+//         return 200;
+//     }
+
+//     float getX() { return _ax; }
+//     float getY() { return _ay; }
+//     float getZ() { return _az; }
+// };
+
+// #endif
