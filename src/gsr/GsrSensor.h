@@ -39,8 +39,8 @@ public:
         }
         int avgRaw = sum / 10;
 
-        Serial.print("Raw ADC: ");
-        Serial.println(avgRaw);
+        // Serial.print("Raw ADC: ");
+        // Serial.println(avgRaw);
 
         if (_serialCalibration > avgRaw) {
             _currentResistance = ((1024L + 2L * avgRaw) * 10000L) / (_serialCalibration - avgRaw);

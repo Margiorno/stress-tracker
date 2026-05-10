@@ -8,7 +8,7 @@ class PayloadBuilder {
 public:
     size_t buildBinaryPayload(Aggregator** aggregators, int numAggregators, uint8_t* buffer, size_t bufferSize) {
         
-        StaticJsonDocument<2048> doc; 
+        DynamicJsonDocument doc(4096);
         JsonObject root = doc.to<JsonObject>();
 
         for (int i = 0; i < numAggregators; i++) {

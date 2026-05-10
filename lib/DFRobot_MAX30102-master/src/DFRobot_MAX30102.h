@@ -279,6 +279,15 @@ public:
   float readTemperatureF();
 
   /*!
+   *@brief Fetch the latest sample from FIFO and store it in the circular buffer, then return the latest red light and IR reading at the same time. The readings will be stored in the location pointed by the parameters
+   */
+  void getBoth(uint32_t* ir, uint32_t* red) {
+      getNewData();
+      *ir = senseBuf.IR[senseBuf.head];
+      *red = senseBuf.red[senseBuf.head];
+  }
+
+  /*!
    *@brief Calculate heart rate and SPO2 
    *@param *SPO2                  [out]Calculated SPO2
    *@param *SPO2Valid             [out]If the calculated SPO2 is valid, the value is 1

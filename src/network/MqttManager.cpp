@@ -7,7 +7,7 @@ MqttManager::MqttManager(const char* server, int port, const char* topic) {
     
     client.setClient(espClient);
 
-    client.setBufferSize(2048);
+    client.setBufferSize(4096);
 }
 
 void MqttManager::begin(const char* rootCA, const char* deviceCert, const char* deviceKey) {
